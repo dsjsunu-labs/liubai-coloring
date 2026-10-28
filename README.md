@@ -12,7 +12,7 @@
 | 方式 | 步骤 |
 | --- | --- |
 | 下载即用 | 下载本仓库 → 双击 `index.html`（Edge / Chrome / Safari） |
-| 在线试玩 | 打开 GitHub Pages：`https://dsjsunu.github.io/liubai-coloring/` |
+| 在线试玩 | 打开 GitHub Pages：`https://dsjsunu-labs.github.io/liubai-coloring/` |
 | 手机上玩 | 把仓库部署到任意静态托管，或把 `index.html` 传到手机用浏览器打开 |
 
 无需 Node、Python 或任何安装步骤。所有画面、配色、纹理都在这一个文件里。

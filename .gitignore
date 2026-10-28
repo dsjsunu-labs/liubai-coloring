@@ -12,3 +12,7 @@ desktop.ini
 *.log
 *.tmp
 _tmp/
+
+# WeChat DevTools local settings
+project.private.config.json
+miniprogram-code.png

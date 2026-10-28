@@ -1,0 +1,91 @@
+<view class="page">
+  <view class="intro">
+    <view class="eyebrow">LIUBAI · COLOR STUDY</view>
+    <view class="title">给片刻，留一点颜色。</view>
+    <view class="sub">选一组喜欢的色彩，从任意一片开始。</view>
+  </view>
+
+  <view class="modes">
+    <button wx:for="{{modes}}" wx:key="id" class="mode {{mode===item.id?'selected':''}}" data-mode="{{item.id}}" bindtap="changeMode" disabled="{{busy}}">{{item.name}}</button>
+  </view>
+
+  <view class="workbar">
+    <view class="work-info"><text class="work-title">{{paletteName}}</text><text class="work-count">{{filledCount}} / {{pieceCount}} 片已上色</text></view>
+    <view class="history">
+      <button class="history-btn" bindtap="undo" disabled="{{!canUndo||busy}}" aria-label="撤销">↶</button>
+      <button class="history-btn" bindtap="redo" disabled="{{!canRedo||busy}}" aria-label="重做">↷</button>
+    </view>
+  </view>
+
+  <view class="art-frame">
+    <canvas type="2d" id="artCanvas" class="art-canvas" style="height:{{canvasSize}}px" bindtouchstart="touchStart" catchtouchmove="touchMove" bindtouchend="touchEnd" bindtouchcancel="touchEnd" aria-label="填色画布" />
+  </view>
+  <view class="instruction" role="status">{{instruction}}</view>
+
+  <view class="card colors-card">
+    <view class="section-label"><text>当前配色</text><text>{{colorLabel}}</text></view>
+    <view class="swatches">
+      <view wx:for="{{colors}}" wx:key="*this" class="swatch-slot">
+        <button class="swatch {{colorIndex===index&&tool==='paint'?'active':''}}" style="background:{{item}}" data-index="{{index}}" bindtap="selectColor" aria-label="颜色 {{index+1}} {{item}}" disabled="{{busy}}"><text class="swatch-number" style="color:{{swatchInk[index]}}">{{index+1}}</text></button><text class="color-hex">{{item}}</text>
+      </view>
+    </view>
+    <view class="palette-summary">{{paletteName}} · {{paletteDesc}}</view>
+  </view>
+  <view class="card library-card">
+    <view class="section-label"><text>配色库</text><text>每组八色 · 点选切换</text></view>
+    <scroll-view scroll-y class="palette-scroll">
+      <view class="palette-grid">
+        <button wx:for="{{paletteCards}}" wx:key="index" class="palette-card {{paletteIndex===item.index?'chosen':''}}" data-index="{{item.index}}" bindtap="changePalette" disabled="{{busy}}">
+          <view class="palette-heading"><text>{{item.name}}</text><text>{{paletteIndex===item.index?'✓':''}}</text></view>
+          <view class="palette-strip"><view wx:for="{{item.colors}}" wx:for-item="tone" wx:key="*this" style="background:{{tone}}" /></view>
+        </button>
+      </view>
+    </scroll-view>
+  </view>
+
+  <view class="tools">
+    <button class="tool {{tool==='paint'?'selected':''}}" data-tool="paint" bindtap="selectTool" disabled="{{busy}}">涂色</button>
+    <button class="tool {{tool==='eraser'?'selected':''}}" data-tool="eraser" bindtap="selectTool" disabled="{{busy}}">橡皮</button>
+    <button class="tool {{tool==='spread'?'selected':''}}" data-tool="spread" bindtap="selectTool" disabled="{{busy}}">漫填</button>
+    <button class="tool {{tool==='cut'?'selected':''}}" data-tool="cut" bindtap="selectTool" disabled="{{busy||mode==='line'||mode==='pixel'}}">单切</button>
+  </view>
+  <view class="actions">
+    <button class="secondary" bindtap="importImage" disabled="{{busy}}">导入图片</button>
+    <button class="primary" bindtap="autoFill" disabled="{{busy}}">一键铺色</button>
+  </view>
+
+  <view class="card material-panel">
+    <view class="section-label"><text>材质与光泽</text><text>{{textureNames[textureIndex]}}</text></view>
+    <view class="material-grid">
+      <button wx:for="{{materialCards}}" wx:key="id" class="material-card {{textureIndex===item.index?'chosen':''}}" data-index="{{item.index}}" bindtap="changeTexture" disabled="{{busy}}">
+        <view class="material-sample sample-{{item.id}}"><image src="/assets/materials/{{item.id}}-preview.png" mode="aspectFill" /></view><text>{{item.name}}</text>
+      </button>
+    </view>
+    <view class="section-label"><text>质感强度</text><text>{{textureStrength}}%</text></view>
+    <slider min="0" max="100" step="5" value="{{textureStrength}}" activeColor="#8b5439" block-color="#8b5439" block-size="20" bindchange="changeTextureStrength" disabled="{{busy||textureIndex===0}}" />
+    <view class="small">质感作用于已填色的碎片，可先点“一键铺色”查看。</view>
+  </view>
+  <view class="card settings">
+    <view class="section-label"><text>画面设置</text><text>随时调整</text></view>
+    <view class="settings-row" wx:if="{{mode==='mosaic'||mode==='glass'}}">
+      <picker class="setting-picker" mode="selector" range="{{cutNames}}" value="{{cutIndex}}" bindchange="changeCut" disabled="{{busy}}"><view class="setting-value"><text>切法</text><text>{{cutNames[cutIndex]}} ›</text></view></picker>
+    </view>
+    <view wx:if="{{mode==='mosaic'||mode==='glass'}}" class="density">
+      <view class="section-label"><text>碎片密度</text><text>{{density}} · {{imageImported?'沿图片色区分片':'随机切割'}}</text></view>
+      <slider min="12" max="120" step="12" value="{{density}}" activeColor="#8b5439" backgroundColor="#ddd4c7" block-color="#8b5439" block-size="20" bindchange="changeDensity" disabled="{{busy}}" />
+      <view class="slider-labels"><text>疏朗</text><text>细密</text></view>
+      <view class="section-label strength-label"><text>边缘变化</text><text>{{strength}}%</text></view>
+      <slider min="0" max="100" step="5" value="{{strength}}" activeColor="#8b5439" backgroundColor="#ddd4c7" block-color="#8b5439" block-size="20" bindchange="changeStrength" disabled="{{busy||imageImported}}" />
+    </view>
+    <view class="toggle-row"><view class="toggle-copy"><text>展开动画</text><text class="small">从相邻边逐片翻开</text></view><switch checked="{{animationEnabled}}" color="#8b5439" bindchange="toggleAnimation" disabled="{{busy}}" /></view>
+    <view wx:if="{{mode==='glass'}}" class="toggle-row"><view class="toggle-copy"><text>暖光透亮</text><text class="small">为玻璃加一点光</text></view><switch checked="{{light}}" color="#8b5439" bindchange="toggleLight" disabled="{{busy}}" /></view>
+    <view class="actions bottom-actions"><button class="secondary" bindtap="regenerate" disabled="{{busy}}">重新切割</button><button class="secondary" bindtap="clearAll" disabled="{{busy||filledCount===0}}">清空颜色</button></view>
+  </view>
+
+  <button class="save-button" bindtap="exportArt" loading="{{saving}}" disabled="{{busy||saving}}">保存作品到相册</button>
+  <view class="footnote">{{imageImported?'按图片色区生成，微小细节会适度简化。':'配色有章法，落笔无标准。'}}<text class="footnote-line">作品自动保存在本机，可撤销每一次尝试。</text></view>
+
+  <canvas type="2d" id="exportCanvas" class="utility-canvas" />
+  <canvas type="2d" id="imageCanvas" class="utility-canvas" />
+</view>
+

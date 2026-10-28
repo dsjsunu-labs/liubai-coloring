@@ -1,4 +1,4 @@
-﻿# 留白 · 填色实验室
+# 留白 · 填色实验室
 
 一个随机碎形填色小游戏。**整个应用就是一个 `index.html`**：不联网、不安装、无外链依赖，双击就能玩，手机 / iPad / 电脑自适应。
 
@@ -36,11 +36,22 @@
 - **壁纸导出**：方形原作 1600 × 1600，iPhone 与 iPad 各代原生分辨率，横竖屏可选，作品居中、柔焦填边、留出锁屏时钟区域。
 - **快捷键**：`1–8` 取色、`E` 橡皮、`R` 重切、`Ctrl+Z` 撤销。
 
+## 微信小程序版
+
+仓库里的 `miniprogram/` 是原生微信小程序移植（WXML / WXSS + Canvas 2D），功能和网页版基本一致：
+
+1. 微信开发者工具 → 导入项目 → 选择 `liubai-coloring/miniprogram`
+2. AppID 默认是 `touristappid`（游客模式），正式发布换成自己的
+3. 编译即可预览
+
+小程序特有的相册导入、保存壁纸等能力也都在，详见 [miniprogram/README.md](miniprogram/README.md)。
+
 ## 项目结构
 
 ```text
 liubai-coloring/
-├─ index.html        # 整个应用（HTML + CSS + JS + 内嵌纹理）
+├─ index.html        # 网页版：整个应用（HTML + CSS + JS + 内嵌纹理）
+├─ miniprogram/      # 微信小程序版（原生 WXML + Canvas 2D）
 ├─ preview*.png      # 预览图
 ├─ PROMPTS.md        # 需求与设计记录
 ├─ README.md

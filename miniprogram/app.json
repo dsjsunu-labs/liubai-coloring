@@ -1,0 +1,14 @@
+{
+  "pages": [
+    "pages/index/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "留白 · 填色实验室",
+    "navigationBarBackgroundColor": "#F2EDE4",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#F2EDE4",
+    "backgroundTextStyle": "dark"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}
